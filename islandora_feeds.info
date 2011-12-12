@@ -1,0 +1,8 @@
+name = Islandora Feeds
+description = Feeds intergation for constructing Fedora objects from OAI-PMH Feeds
+group = Islandora Tools
+dependencies[] = fedora_repository
+dependencies[] = islandora_harvester
+dependencies[] = feeds
+dependencies[] = feeds_oai_pmh
+core = 6.x

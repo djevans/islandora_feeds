@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * Implements hook_feeds_plugins().
+ */
+function islandora_feeds_feeds_plugins() {
+  $info = array();
+  $info['IslandoraFeedProcessor'] = array(
+    'name' => 'Islandora Processor',
+    'description' => 'Processes OAI-DC to create Fedora objects',
+    'help' => 'Iterates through OAI-DC XML files and creates a Fedora object for each record',
+    'handler' => array(
+      'parent' => 'FeedsProcessor',
+      'class' => 'IslandoraFeedProcessor',
+      'file' => 'IslandoraFeedProcessor.inc',
+      'path' => drupal_get_path('module','islandora_feeds') .'/plugins',
+    ),
+  );
+  return $info;
+}
+
+function configDefaults() {
+  return array(
+    'namespace' => 'k4all',
+    'collection_pid' => 'k4all:articleCollection',
+    'content_model' => 'k4all:articleCModel',
+  );
+}
