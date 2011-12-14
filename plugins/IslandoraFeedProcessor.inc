@@ -10,8 +10,8 @@ class IslandoraFeedProcessor extends FeedsProcessor {
     module_load_include('inc','islandora_harvester','islandora_harvester');
     watchdog('islandora_feeds','Starting process');
     $namespace = 'article';
-    $collection_pid = 'k4all:articleCollection';
-    $content_model = 'k4all:articleCModel';
+    $collection_pid = 'islandora:articleCollection';
+    $content_model = 'islandora:articleCModel';
     while ($batch->shiftItem()) {
       $record = array('dc' => $this->map($batch));
       build_oai_objects($record,$namespace,$collection_pid,$content_model);
