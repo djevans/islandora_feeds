@@ -42,13 +42,15 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     $thumbnail_file = '';
     
     while($item = $batch->shiftItem()) {
+      
+      // Create/update if item does not exist or update existing is enabled.
+      if (!$this->existingItemId($batch,$source) || ($this->config['update_existing'] != FEEDS_SKIP_EXISTING))
+      
       try {
-        // does item exist? assuming NO
         $pid = Fedora_Item::get_next_PID_in_namespace($namespace = 'article');
-        watchdog('islandora_feeds','Creating object with PID %pid', array('%pid' => $pid));
         $fedora_object = Fedora_Item::ingest_new_item($pid, 'A', $item->title, 'Owner');
 
-        // create MODS based on the zotero info
+        // create MODS based on the Zotero data
         $modsDOM = $this->map($batch,$fedora_object);
         $modsStream = $modsDOM->saveXML();
         $title = $dcStream->dc['dc:title'];
@@ -124,15 +126,14 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     foreach ($this->uniqueTargets($batch) as $target => $value) {
       switch ($target) {
         case 'url':
-          $pid = db_result(db_query("SELECT nid FROM {feeds_node_item} WHERE feed_nid = %d AND id = '%s' AND url = '%s'", $source->feed_nid, $source->id, $value));
-          break;
         case 'guid':
-          $pid = db_result(db_query("SELECT nid FROM {feeds_node_item} WHERE feed_nid = %d AND id = '%s' AND guid = '%s'", $source->feed_nid, $source->id, $value));
+          $pids = Fedora_Item::find_objects_by_pattern($value,'source'); 
           break;
       }
-      if ($pid) {
+      if (!empty($pids)) {
         // Return with the first nid found.
-        return $pid;
+        $keys = array_keys($pids);
+        return $keys[0];
       }
     }
     return FALSE;
