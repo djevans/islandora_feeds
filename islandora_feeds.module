@@ -5,14 +5,33 @@
  */
 function islandora_feeds_feeds_plugins() {
   $info = array();
-  $info['IslandoraFeedProcessor'] = array(
-    'name' => 'Islandora Processor',
+  $info['IslandoraFeedsOAIProcessor'] = array(
+    'name' => 'Islandora OAI Processor',
     'description' => 'Processes OAI-DC to create Fedora objects',
-    'help' => 'Iterates through OAI-DC XML files and creates a Fedora object for each record',
     'handler' => array(
       'parent' => 'FeedsProcessor',
-      'class' => 'IslandoraFeedProcessor',
-      'file' => 'IslandoraFeedProcessor.inc',
+      'class' => 'IslandoraFeedsOAIProcessor',
+      'file' => 'IslandoraFeedsOAIProcessor.inc',
+      'path' => drupal_get_path('module','islandora_feeds') .'/plugins',
+    ),
+  );
+  $info['IslandoraFeedsZoteroXMLParser'] = array(
+    'name' => 'Islandora Zotero-XML Parser',
+    'description' => 'Creates XML from Zotero entries',
+    'handler' => array(
+      'parent' => 'FeedsZoteroParser',
+      'class' => 'IslandoraFeedsZoteroXMLParser',
+      'file' => 'IslandoraFeedsZoteroXMLParser.inc',
+      'path' => drupal_get_path('module','islandora_feeds') .'/plugins',      
+    ),
+  );
+  $info['IslandoraFeedsZoteroProcessor'] = array(
+    'name' => 'Islandora Zotero Processor',
+    'description' => 'Processes Zotero entries to create Fedora objects',
+    'handler' => array(
+      'parent' => 'FeedsProcessor',
+      'class' => 'IslandoraFeedsZoteroProcessor',
+      'file' => 'IslandoraFeedsZoteroProcessor.inc',
       'path' => drupal_get_path('module','islandora_feeds') .'/plugins',
     ),
   );
@@ -21,8 +40,8 @@ function islandora_feeds_feeds_plugins() {
 
 function configDefaults() {
   return array(
-    'namespace' => 'k4all',
-    'collection_pid' => 'k4all:articleCollection',
-    'content_model' => 'k4all:articleCModel',
+    'namespace' => 'article',
+    'collection_pid' => 'islandora:articleCollection',
+    'content_model' => 'islandora:articleCModel',
   );
 }
