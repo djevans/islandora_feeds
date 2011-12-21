@@ -119,13 +119,30 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
   }
   
   function existingItemId(FeedsImportBatch $batch, FeedsSource $source) {
-    
+    // Iterate through all unique targets and test whether they do already
+    // exist in the database.
+    foreach ($this->uniqueTargets($batch) as $target => $value) {
+      switch ($target) {
+        case 'url':
+          $pid = db_result(db_query("SELECT nid FROM {feeds_node_item} WHERE feed_nid = %d AND id = '%s' AND url = '%s'", $source->feed_nid, $source->id, $value));
+          break;
+        case 'guid':
+          $pid = db_result(db_query("SELECT nid FROM {feeds_node_item} WHERE feed_nid = %d AND id = '%s' AND guid = '%s'", $source->feed_nid, $source->id, $value));
+          break;
+      }
+      if ($pid) {
+        // Return with the first nid found.
+        return $pid;
+      }
+    }
+    return FALSE;
   }
   
   function uniqueTargets(FeedsImportBatch $batch) {
     $item = $batch->currentItem();
     $targets = array(
-      'zoteroID' => $item['']
+      'guid' => $item['guid'],
+      'url' => $item['url'],
     );
     return $targets;
   }
