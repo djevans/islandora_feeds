@@ -15,6 +15,16 @@ function islandora_feeds_feeds_plugins() {
       'path' => drupal_get_path('module','islandora_feeds') .'/plugins',
     ),
   );
+  $info['IslandoraFeedsZoteroFetcher'] = array(
+    'name' => 'Islandora Zotero Fetcher',
+    'description' => 'Fetches Journal Articles and Attachment records from a Zotero feed',
+    'handler' => array(
+      'parent' => 'FeedsZoteroFetcher',
+      'class' => 'IslandoraFeedsZoteroFetcher',
+      'file' => 'IslandoraFeedsZoteroFetcher.inc',
+      'path' => drupal_get_path('module','islandora_feeds') .'/plugins',
+    ),
+  );
   $info['IslandoraFeedsZoteroXMLParser'] = array(
     'name' => 'Islandora Zotero-XML Parser',
     'description' => 'Creates XML from Zotero entries',
