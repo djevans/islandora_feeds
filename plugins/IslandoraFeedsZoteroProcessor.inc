@@ -5,7 +5,6 @@ define('FEEDS_CREATE_SEPARATE',3);
 
 class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
   
- 
   function map(FeedsImportBatch $batch, $target_item = NULL) {
     try {
       $proc = new XsltProcessor();
@@ -43,33 +42,47 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     
     while($item = $batch->shiftItem()) {
       
-      // Create/update if item does not exist or update existing is enabled.
-      if (!$this->existingItemId($batch,$source) || ($this->config['update_existing'] != FEEDS_SKIP_EXISTING))
+      $existing_id = $this->existingItemId($batch,$source);
       
-      try {
-        $pid = Fedora_Item::get_next_PID_in_namespace($namespace = 'article');
-        $fedora_object = Fedora_Item::ingest_new_item($pid, 'A', $item->title, 'Owner');
-
-        // create MODS based on the Zotero data
+      if ($existing_id && $this->config['update_existing'] == FEEDS_SKIP_EXISTING) {
+        // do nowt
+        watchdog('islandora_feeds','Skipped duplicate record <%url>', array('%url' => 
+          $item['url']
+        ));
+      }
+      else {
+        // create MODS and DC metadata
         $modsDOM = $this->map($batch,$fedora_object);
         $modsStream = $modsDOM->saveXML();
+        $dcStream = batch_create_dc_from_mods($modsStream);
+        // populate title
         $title = $dcStream->dc['dc:title'];
         if (is_array($title)) {
           $title = $title[0];
         }
-        $fedora_object->add_datastream_from_string($modsStream, 'MODS', 'MODS Metadata','text/xml');
-        $dcStream = batch_create_dc_from_mods($modsStream);
-        watchdog('mods_stream',$modsStream);
-        watchdog('dc_stream',$dcStream);
-        $fedora_object->modify_datastream_by_value($dcStream, 'DC', "Dublin Core", 'text/xml');
-        $fedora_object->add_relationship('isMemberOfCollection', $collection_pid);
-        $fedora_object->add_relationship('hasModel', $content_model, 'info:fedora/fedora-system:def/model#');
-        // $fedora_object->add_datastream_from_file($thumbnail_file, 'TN');
-        $batch->created++;
         
-      } catch (Exception $e) {
+        if ($existing_id && $this->config['update_existing'] == FEEDS_UPDATE_EXISTING) {
+          $fedora_object = new Fedora_Item($existing_id);
+          // we assume a MODS datastream already exists
+          $fedora_object->modify_datastream_by_value($modsStream, 'MODS', "MODS Metadata", 'text/xml');
+          $batch->updated++;
+        }
+        else {
+          if ($existing_id && $this->config['update_existing'] == FEEDS_REPLACE_EXISTING) {
+            $fedora_object = new Fedora_Item($existing_id);
+            $fedora_object->purge();
+          }
+          $pid = Fedora_Item::get_next_PID_in_namespace($namespace = 'article');
+          $fedora_object = Fedora_Item::ingest_new_item($pid,'A',$item->title,'Owner');
+          $fedora_object->add_datastream_from_string($modsStream, 'MODS', 'MODS Metadata','text/xml');
+          $fedora_object->add_relationship('isMemberOfCollection', $collection_pid);
+          $fedora_object->add_relationship('hasModel', $content_model, 'info:fedora/fedora-system:def/model#');
+          $batch->created++:
+        }
+        $fedora_object->modify_datastream_by_value($dcStream, 'DC', "Dublin Core", 'text/xml');
         
       }
+
     }
     
     // Set messages.
