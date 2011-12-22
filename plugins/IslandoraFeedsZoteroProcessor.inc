@@ -77,7 +77,7 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
           $fedora_object->add_datastream_from_string($modsStream, 'MODS', 'MODS Metadata','text/xml');
           $fedora_object->add_relationship('isMemberOfCollection', $collection_pid);
           $fedora_object->add_relationship('hasModel', $content_model, 'info:fedora/fedora-system:def/model#');
-          $batch->created++:
+          $batch->created++;
         }
         $fedora_object->modify_datastream_by_value($dcStream, 'DC', "Dublin Core", 'text/xml');
         
