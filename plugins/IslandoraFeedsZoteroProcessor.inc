@@ -30,6 +30,9 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     module_load_include('inc', 'fedora_repository', 'api/fedora_item');
     module_load_include('inc', 'fedora_repository', 'BatchIngest');
     
+    // Keep track of skipped items
+    $skipped = 0;
+    
     // Keep track of processed items in this pass, set total number of items.
     $processed = 0;
     if (!$batch->getTotal(FEEDS_PROCESSING)) {
@@ -49,6 +52,8 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
         watchdog('islandora_feeds','Skipped duplicate record <%url>', array('%url' => 
           $item['url']
         ));
+        $skipped++;
+        
       }
       else {
         // create MODS and DC metadata
@@ -91,12 +96,17 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
         format_plural($batch->created, 'Created @number object.', 'Created @number objects.', array('@number' => $batch->created))
       );
     }
-    elseif ($batch->updated) {
+    if ($batch->updated) {
       drupal_set_message(
-        format_plural($batch->updated, 'Created @number object.', 'Created @number objects.', array('@number' => $batch->updated))
+        format_plural($batch->updated, 'Updated @number object.', 'Updated @number objects.', array('@number' => $batch->updated))
       );
     }
-    else {
+    if ($skipped) {
+      drupal_set_message(
+        format_plural($skipped, 'Skipped @number record.', 'Skipped @number records.', array('@number' => $skipped))
+      );      
+    }
+    if(!($batch->created || $batch->updated)) {
       drupal_set_message(t('There is no new content.'));
     }
     $batch->setProgress(FEEDS_PROCESSING, FEEDS_BATCH_COMPLETE);
@@ -128,7 +138,7 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
   
   function configDefaults() {
     return array(
-      'update_existing' => FEEDS_UPDATE_EXISTING,
+      'update_existing' => FEEDS_SKIP_EXISTING,
       'mappings' => array(),
     );
   }
