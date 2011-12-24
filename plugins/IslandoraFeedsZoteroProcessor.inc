@@ -46,12 +46,11 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     while($item = $batch->shiftItem()) {
       
       $existing_id = $this->existingItemId($batch,$source);
-      
       if ($existing_id && $this->config['update_existing'] == FEEDS_SKIP_EXISTING) {
         // do nowt
-        watchdog('islandora_feeds','Skipped duplicate record <%url>', array('%url' => 
-          $item['url']
-        ));
+        watchdog('islandora_feeds','Skipped duplicate record <%guid> which has existing ID %xid', 
+          array('%guid' => $item['guid'], '%xid' => $existing_id)
+        );
         $skipped++;
         
       }
@@ -82,6 +81,7 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
           $fedora_object->add_datastream_from_string($modsStream, 'MODS', 'MODS Metadata','text/xml');
           $fedora_object->add_relationship('isMemberOfCollection', $collection_pid);
           $fedora_object->add_relationship('hasModel', $content_model, 'info:fedora/fedora-system:def/model#');
+          watchdog('islandora_feeds','Created object with PID %pid',array('%pid' => $pid));
           $batch->created++;
         }
         $fedora_object->modify_datastream_by_value($dcStream, 'DC', "Dublin Core", 'text/xml');
@@ -148,9 +148,12 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     // exist in the database.
     foreach ($this->uniqueTargets($batch) as $target => $value) {
       switch ($target) {
-        case 'url':
         case 'guid':
-          $pids = Fedora_Item::find_objects_by_pattern($value,'source'); 
+          preg_match('/\w+$/',$value,$preg_value);
+          watchdog('islandora_feeds','Searching for object with dc.source <%source>',
+            array('%source' => $preg_value[0])
+          );
+          $pids = Fedora_Item::find_objects_by_pattern('*'. $preg_value[0],'source'); 
           break;
       }
       if (!empty($pids)) {
@@ -166,7 +169,6 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     $item = $batch->currentItem();
     $targets = array(
       'guid' => $item['guid'],
-      'url' => $item['url'],
     );
     return $targets;
   }

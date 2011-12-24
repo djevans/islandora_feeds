@@ -1,0 +1,27 @@
+<?php
+
+class Islandora_feedsTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => t('Islandora_feeds tests'),
+      'description' => t('One or more complete sentences explaining the test.'),
+      'group' => t('Islandora_feeds'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('islandora_feeds','fedora_repository');
+  }
+  
+  function testNewZoteroFeed() {
+    // create an object of type ZoteroXMLFeed
+    // populate it
+    // save it
+    // perform an import by running cron
+    // perform an import by running cron
+    // assertions go here
+  }
+  
+}
+
+

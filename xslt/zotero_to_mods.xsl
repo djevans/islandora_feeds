@@ -147,12 +147,26 @@
             <mods:physicalLocation><xsl:value-of select="text()" /></mods:physicalLocation>
         </mods:location>
     </xsl:template>
-    <xsl:template match="url">
+    <xsl:template match="guid">
         <mods:relatedItem type="original">
           <mods:location>
             <mods:url><xsl:value-of select="text()" /></mods:url>
           </mods:location>
         </mods:relatedItem>
+    </xsl:template>
+    <xsl:template match="url">
+      <mods:location>
+        <mods:url><xsl:value-of select="text()" /></mods:url>
+      </mods:location>
+    </xsl:template>
+    <xsl:template match="tags">
+      <mods:subject>
+        <xsl:for-each select="item/tag">
+          <mods:topic>
+            <xsl:value-of select="text()" />
+          </mods:topic>
+        </xsl:for-each>
+      </mods:subject>
     </xsl:template>
     <xsl:template match="node()"><!-- Ignore everything else --></xsl:template>
 </xsl:stylesheet>

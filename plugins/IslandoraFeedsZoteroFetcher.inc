@@ -11,36 +11,37 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
  
   public function __construct($zotero_feed_url, $first_pass, $records_fetched, $most_recent_fetched, $feed_nid) {
     $this->zotero_feed_url = $zotero_feed_url;
-    $this->first_pass = $first_pass;
-    $this->records_fetched = $records_fetched;
-    $this->most_recent_fetched = $most_recent_fetched;
+    $this->setFirstPass($first_pass);
+    $this->setRecordsFetched($records_fetched);
+    $this->setMostRecentFetched($most_recent_fetched);
     parent::__construct($zotero_feed_url,$feed_nid);
   }
 
   public function getRaw() {
-    // get data with the relevant:
-    // offset (stored somewhere)
-    // update most-recent-fetched
-    // update first-pass if the first pass has completed
+    
     $url = $this->zotero_feed_url;
-    $url .= '&itemType=journalArticle || attachment&order=dateCreated';
+    $url .= '&itemType=journalArticle%20||%20attachment&order=dateAdded';
     // first pass: sort by dateCreated asc
     // second pass and beyond: sort by dateCreated desc
-    $url .= '&sort='. ($this->first_pass)? 'asc': 'desc';
-    $url .= '&limit=50&start='. $this->records_fetched;
-    
+    $url .= '&sort=';
+    $url .= ($this->first_pass)? 'asc': 'desc';
+    $url .= '&limit=2&start='. $this->records_fetched;
+            
     $result = drupal_http_request($url);
     if ($result->code == 200) {
-      // search for the most recent date in the result set
-      $result_xml = simplexml_load_xml($result->data);
+
+      $result_xml = simplexml_load_string($result->data);
       $entry_count = count($result_xml->entry);
+      $feed_zapi = $result_xml->children('http://zotero.org/ns/api');
+      $total_results = $feed_zapi->totalResults;
+      
       if ($this->first_pass) {
         if ($this->records_fetched == 0) {
-          $lastest_update = $result_xml->updated; // returned in YYYY-MM-DDThh:mm:ssZ format
+          $latest_update = $result_xml->updated; // returned in YYYY-MM-DDThh:mm:ssZ format
           $this->setMostRecentFetched($latest_update);
         }
-        $this->setRecordsFetched($this->recordsFetched + $entry_count);
-        if ($this->records_fetched == $record_xml->totalResults) {
+        $this->setRecordsFetched($this->records_fetched + $entry_count);
+        if ($this->records_fetched == $total_results) {
           $this->setFirstPass(FALSE);
           $this->setRecordsFetched(0);
         }        
@@ -51,12 +52,15 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
         // to do this, we first need the oldest record in the set
         $oldest_entry = $result_xml->entry[$entry_count - 1];
         $oldest_timestamp = $oldest_entry->published;
-        if ($oldest_timestamp < $this->mostRecentFetched) {
+        if ($oldest_timestamp < $this->most_recent_fetched) {
           // restart the pass
           $this->setRecordsFetched(0);
         } 
         else {
-          $this->setRecordsFetched($this->recordsFetched + $entry_count);
+          $this->setRecordsFetched($this->records_fetched + $entry_count);
+          if ($this->records_fetched == $total_results) {
+            $this->setRecordsFetched(0);
+          }
         }
       }
     }
