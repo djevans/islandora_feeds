@@ -60,10 +60,8 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
         $modsStream = $modsDOM->saveXML();
         $dcStream = batch_create_dc_from_mods($modsStream);
         // populate title
-        $title = $dcStream->dc['dc:title'];
-        if (is_array($title)) {
-          $title = $title[0];
-        }
+        preg_match('/<dc.title.*>(.*)<\/dc.title>/',$str,$matches);
+        $title = $matches[1];
         
         if ($existing_id && $this->config['update_existing'] == FEEDS_UPDATE_EXISTING) {
           $fedora_object = new Fedora_Item($existing_id);
