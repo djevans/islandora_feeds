@@ -45,6 +45,12 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
     
     while($item = $batch->shiftItem()) {
       
+      if ($item['itemType'] == 'attachment') {
+        // TODO insert it as a datastream in the existing object.
+        // FORNOW skip it!
+        continue;
+      }
+      
       $existing_id = $this->existingItemId($batch,$source);
       if ($existing_id && $this->config['update_existing'] == FEEDS_SKIP_EXISTING) {
         // do nowt
