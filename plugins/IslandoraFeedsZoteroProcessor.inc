@@ -59,9 +59,6 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
         $modsDOM = $this->map($batch,$fedora_object);
         $modsStream = $modsDOM->saveXML();
         $dcStream = batch_create_dc_from_mods($modsStream);
-        // populate title
-        preg_match('/<dc.title.*>(.*)<\/dc.title>/',$str,$matches);
-        $title = $matches[1];
         
         if ($existing_id && $this->config['update_existing'] == FEEDS_UPDATE_EXISTING) {
           $fedora_object = new Fedora_Item($existing_id);
@@ -75,7 +72,7 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
             $fedora_object->purge();
           }
           $pid = Fedora_Item::get_next_PID_in_namespace($namespace = 'article');
-          $fedora_object = Fedora_Item::ingest_new_item($pid,'A',$item->title,'Owner');
+          $fedora_object = Fedora_Item::ingest_new_item($pid,'A',$item['title'],'Owner');
           $fedora_object->add_datastream_from_string($modsStream, 'MODS', 'MODS Metadata','text/xml');
           $fedora_object->add_relationship('isMemberOfCollection', $collection_pid);
           $fedora_object->add_relationship('hasModel', $content_model, 'info:fedora/fedora-system:def/model#');

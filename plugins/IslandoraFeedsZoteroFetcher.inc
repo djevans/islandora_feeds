@@ -25,7 +25,7 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
     // second pass and beyond: sort by dateCreated desc
     $url .= '&sort=';
     $url .= ($this->first_pass)? 'asc': 'desc';
-    $url .= '&limit=50&start='. $this->records_fetched;
+    $url .= '&limit=5&start='. $this->records_fetched;
             
     $result = drupal_http_request($url);
     if ($result->code == 200) {
@@ -33,14 +33,14 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
       $result_xml = simplexml_load_string($result->data);
       $entry_count = count($result_xml->entry);
       $feed_zapi = $result_xml->children('http://zotero.org/ns/api');
-      $total_results = $feed_zapi->totalResults;
+      $total_results = (int) $feed_zapi->totalResults;
       
       if ($this->first_pass) {
         if ($this->records_fetched == 0) {
           $latest_update = $result_xml->updated; // returned in YYYY-MM-DDThh:mm:ssZ format
-          $this->setMostRecentFetched($latest_update);
+          $this->setMostRecentFetched((string) $latest_update);
         }
-        $this->setRecordsFetched($this->records_fetched + $entry_count);
+        $this->setRecordsFetched((int) $this->records_fetched + $entry_count);
         if ($this->records_fetched == $total_results) {
           $this->setFirstPass(FALSE);
           $this->setRecordsFetched(0);
@@ -57,8 +57,8 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
           $this->setRecordsFetched(0);
         } 
         else {
-          $this->setRecordsFetched($this->records_fetched + $entry_count);
-          if ($this->records_fetched == $total_results) {
+          $this->setRecordsFetched((int) $this->records_fetched + $entry_count);
+          if ((int) $this->records_fetched == $total_results) {
             $this->setRecordsFetched(0);
           }
         }
