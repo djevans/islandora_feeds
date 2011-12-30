@@ -48,6 +48,10 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
       if ($item['itemType'] == 'attachment') {
         // TODO insert it as a datastream in the existing object.
         // FORNOW skip it!
+        watchdog('islandora_feeds','Skipped over attachent record <%guid>',array(
+          '%guid' => $item['guid'],
+        ));
+        $skipped++;
         continue;
       }
       
