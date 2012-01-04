@@ -25,7 +25,8 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
     // second pass and beyond: sort by dateCreated desc
     $url .= '&sort=';
     $url .= ($this->first_pass)? 'asc': 'desc';
-    $url .= '&limit=5&start='. $this->records_fetched;
+    // TODO change the number of records fetched via config
+    $url .= '&limit=50&start='. $this->records_fetched;
             
     $result = drupal_http_request($url);
     if ($result->code == 200) {
