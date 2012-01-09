@@ -86,6 +86,9 @@ class IslandoraFeedsZoteroProcessor extends FeedsProcessor {
           $fedora_object->add_datastream_from_string($modsStream, 'MODS', 'MODS Metadata','text/xml');
           $fedora_object->add_relationship('isMemberOfCollection', $collection_pid);
           $fedora_object->add_relationship('hasModel', $content_model, 'info:fedora/fedora-system:def/model#');
+          
+          // invoke hooks with the 
+          
           watchdog('islandora_feeds','Created object with PID %pid',array('%pid' => $pid));
           $batch->created++;
         }

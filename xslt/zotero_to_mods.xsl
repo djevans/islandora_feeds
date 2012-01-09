@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mods="http://www.loc.gov/mods/v3"
-    exclude-result-prefixes="xs" version="1.0">
+    xmlns:mods="http://www.loc.gov/mods/v3" version="1.0">
+    <xsl:strip-space elements="*"/>
     <xsl:template match="/">
         <mods:mods>
             <xsl:apply-templates select="entry"/>
         </mods:mods>
     </xsl:template>
     <xsl:template match="entry">
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="itemType"/>
+        <xsl:apply-templates select="title"/>
+        <xsl:apply-templates select="shortTitle"/>
+        <mods:relatedItem type="host">
+            <xsl:apply-templates select="publicationTitle"/>
+            <xsl:apply-templates select="ISSN"/>
+            <xsl:apply-templates select="volume"/>
+            <xsl:apply-templates select="issue"/>
+        </mods:relatedItem>
+        <xsl:apply-templates select="creators"/>
+        <xsl:apply-templates select="abstractNote"/>
+        <xsl:apply-templates select="seriesTitle"/>
+        <xsl:apply-templates select="accessDate"/>
+        <xsl:apply-templates select="date"/>
+        <xsl:apply-templates select="url"/>
+        <xsl:apply-templates select="DOI"/>
+        <xsl:apply-templates select="rights"/>
+        <xsl:apply-templates select="callNumber"/>
+        <xsl:apply-templates select="archiveLocation"/>
     </xsl:template>
     <xsl:template match="itemType">
         <mods:typeOfResource>text</mods:typeOfResource>
         <mods:genre authority="local">
-            <xsl:value-of select="text()"/>
+            <xsl:value-of select="."/>
         </mods:genre>
         <mods:genre authority="marcgt">
-            <xsl:value-of select="text()"/>
+            <xsl:value-of select="."/>
         </mods:genre>
     </xsl:template>
     <xsl:template match="title">
         <mods:titleInfo>
             <mods:title>
-                <xsl:value-of select="text()"/>
+                <xsl:value-of select="."/>
             </mods:title>
         </mods:titleInfo>
     </xsl:template>
@@ -47,126 +65,113 @@
             </mods:role>
         </mods:name>
     </xsl:template>
-    <xsl:template match="abstractNote">
+    <xsl:template match="abstractNote[text()]">
         <mods:abstract>
-            <xsl:value-of select="text()"/>
+            <xsl:value-of select="."/>
         </mods:abstract>
     </xsl:template>
-    <xsl:template match="seriesTitle">
+    <xsl:template match="seriesTitle[text()]">
         <mods:relatedItem type="series">
             <mods:titleInfo>
-                <mods:title><xsl:value-of select="text()" /></mods:title>
-            </mods:titleInfo>
-        </mods:relatedItem>
-    </xsl:template>
-    <xsl:template match="volume">
-        <mods:part>
-            <mods:detail type="volume">
-                <mods:number>
-                    <xsl:value-of select="text()"/>
-                </mods:number>
-            </mods:detail>
-        </mods:part>
-    </xsl:template>
-    <xsl:template match="issue">
-        <mods:originInfo>
-            <mods:edition>
-                <xsl:value-of select="text()"/>
-            </mods:edition>
-        </mods:originInfo>
-    </xsl:template>
-    <xsl:template match="publicationTitle">
-        <mods:relatedItem type="host">
-            <mods:titleInfo>
                 <mods:title>
-                    <xsl:value-of select="text()"/>
+                    <xsl:value-of select="."/>
                 </mods:title>
             </mods:titleInfo>
         </mods:relatedItem>
     </xsl:template>
-    <xsl:template match="date">
+    <xsl:template match="date[text()]">
         <mods:originInfo>
             <mods:copyrightDate>
-                <xsl:value-of select="text()" />
+                <xsl:value-of select="."/>
             </mods:copyrightDate>
         </mods:originInfo>
     </xsl:template>
-    <xsl:template match="pages">
-        <mods:part>
-            <mods:extent unit="pages">
-                <mods:total><xsl:value-of select="text()" /></mods:total>
-            </mods:extent>
-        </mods:part>
-    </xsl:template>
-    <xsl:template match="url">
+    <xsl:template match="url[text()]">
         <mods:location>
             <mods:url>
-                <xsl:value-of select="text()"/>
+                <xsl:value-of select="."/>
             </mods:url>
         </mods:location>
     </xsl:template>
-    <xsl:template match="language">
+    <xsl:template match="language[text()]">
         <mods:language>
-            <xsl:value-of select="text()"></xsl:value-of>
+            <xsl:value-of select="."/>
         </mods:language>
     </xsl:template>
-    <xsl:template match="DOI">
+    <xsl:template match="DOI[text()]">
         <mods:identifier type="doi">
-            <xsl:value-of select="text()"></xsl:value-of>
+            <xsl:value-of select="."/>
         </mods:identifier>
     </xsl:template>
-    <xsl:template match="ISSN">
-        <mods:identifier type="issn">
-            <xsl:value-of select="text()"></xsl:value-of>
-        </mods:identifier>
-    </xsl:template>
-    <xsl:template match="rights">
+    <xsl:template match="rights[text()]">
         <mods:accessCondition>
-            <xsl:value-of select="text()" />
+            <xsl:value-of select="."/>
         </mods:accessCondition>
     </xsl:template>
-    <xsl:template match="callNumber">
+    <xsl:template match="callNumber[text()]">
         <mods:classification>
-            <xsl:value-of select="text" />
+            <xsl:value-of select="."/>
         </mods:classification>
     </xsl:template>
-    <xsl:template match="accessDate">
+    <xsl:template match="accessDate[text()]">
         <mods:originInfo>
             <mods:dateCreated>
-                <xsl:value-of select="text()" />
+                <xsl:value-of select="."/>
             </mods:dateCreated>
         </mods:originInfo>
     </xsl:template>
-    <xsl:template match="shortTitle">
-        <mods:titleInfo>
-            <mods:title><xsl:value-of select="text()" /></mods:title>
+    <xsl:template match="shortTitle[text()]">
+        <mods:titleInfo type="alternative">
+            <mods:title>
+                <xsl:value-of select="."/>
+            </mods:title>
         </mods:titleInfo>
     </xsl:template>
-    <xsl:template match="archiveLocation">
+    <xsl:template match="archiveLocation[text()]">
         <mods:location>
-            <mods:physicalLocation><xsl:value-of select="text()" /></mods:physicalLocation>
+            <mods:physicalLocation>
+                <xsl:value-of select="."/>
+            </mods:physicalLocation>
         </mods:location>
     </xsl:template>
-    <xsl:template match="guid">
-        <mods:relatedItem type="original">
-          <mods:location>
-            <mods:url><xsl:value-of select="text()" /></mods:url>
-          </mods:location>
-        </mods:relatedItem>
+    <!-- start journal templates -->
+    <xsl:template match="publicationTitle[text()]">
+        <mods:titleInfo>
+            <mods:title>
+                <xsl:value-of select="."/>
+            </mods:title>
+        </mods:titleInfo>
     </xsl:template>
-    <xsl:template match="url">
-      <mods:location>
-        <mods:url><xsl:value-of select="text()" /></mods:url>
-      </mods:location>
+    <xsl:template match="ISSN[text()]">
+        <mods:identifier type="issn">
+            <xsl:value-of select="."/>
+        </mods:identifier>
     </xsl:template>
-    <xsl:template match="tags">
-      <mods:subject>
-        <xsl:for-each select="item/tag">
-          <mods:topic>
-            <xsl:value-of select="text()" />
-          </mods:topic>
-        </xsl:for-each>
-      </mods:subject>
+    <xsl:template match="volume[text()]">
+        <mods:part>
+            <mods:detail type="volume">
+                <mods:number>
+                    <xsl:value-of select="."/>
+                </mods:number>
+            </mods:detail>
+        </mods:part>
     </xsl:template>
-    <xsl:template match="node()"><!-- Ignore everything else --></xsl:template>
+    <xsl:template match="issue[text()]">
+        <mods:part>
+            <mods:detail type="issue">
+                <mods:number>
+                    <xsl:value-of select="."/>
+                </mods:number>
+            </mods:detail>
+        </mods:part>
+    </xsl:template>
+    <xsl:template match="pages[text()]">
+        <mods:part>
+            <mods:extent unit="pages">
+                <mods:total>
+                    <xsl:value-of select="."/>
+                </mods:total>
+            </mods:extent>
+        </mods:part>
+    </xsl:template>
 </xsl:stylesheet>
