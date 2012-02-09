@@ -7,13 +7,13 @@
     <xsl:output method="xml" indent="yes"/>
     <xsl:strip-space elements="*"/>
     <xsl:template match="/">
-        <xsl:apply-templates select="//atom:entry[zapi:itemType='journalArticle']" />
+        <xsl:apply-templates select="//entry" />
     </xsl:template>
-    <xsl:template match="atom:entry">
+    <xsl:template match="entry">
         <mods:mods>
             <xsl:apply-templates select="title" />
             <xsl:apply-templates select="id" />
-            <xsl:apply-templates select="atom:content/html:div/html:table" />
+            <xsl:apply-templates select="descendant::html:div/html:table" />
         </mods:mods>
     </xsl:template>
     <xsl:template match="title">
