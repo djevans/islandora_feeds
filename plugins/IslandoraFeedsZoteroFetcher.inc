@@ -10,7 +10,8 @@ class FeedsIslandoraZoteroHTTPBatch extends FeedsImportBatch {
   // what do we want to do?
  
   public function __construct($zotero_feed_url, $first_pass, $records_fetched, $most_recent_fetched, $feed_nid) {
-    $this->zotero_feed_url = $zotero_feed_url;
+    $url = preg_replace('/content=json/','content=html',$zotero_feed_url);
+    $this->zotero_feed_url = $url;
     $this->setFirstPass($first_pass);
     $this->setRecordsFetched($records_fetched);
     $this->setMostRecentFetched($most_recent_fetched);
